@@ -73,7 +73,7 @@ form.invalid .inputBox::after {
   content: "";
   position: absolute;
   right: 14px;
-  top: 14px;
+  top: 11px;
   width: 20px;
   height: 20px;
   background-image: url(valid.jpg);
