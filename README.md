@@ -1,8 +1,8 @@
 # <a>Vanilla-JS</a>
 
-<h3>JavaScript Tutorials &amp; Components<img src="https://raw.githubusercontent.com/aemmadi/aemmadi/master/wave.gif" width="30px" style="max-width: 100%;"></h3>
+<h3>JavaScript Components <img src="https://media.giphy.com/media/xXvIkTu08XQLC/giphy.gif" width="30px" style="max-width: 100%;"></h3>
 
- <p align="justify">✔️This repository serves as an online Realm For JavaScript Tutorials and custom Components</p>
+ <p align="justify">✔️JavaScript Problem Solving🔥 and small/intermediate projects</p>
 
 <br>
 <br>
