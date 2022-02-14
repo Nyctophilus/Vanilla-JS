@@ -1,0 +1,38 @@
+body {
+  display: grid;
+  place-items: center;
+}
+.class-one h2 {
+  color: blueviolet;
+}
+.class-one p {
+  color: blueviolet;
+}
+
+.class-two h2 {
+  color: red;
+}
+.class-two p {
+  color: red;
+}
+
+.class-three h2 {
+  color: blue;
+}
+.class-three p {
+  color: blue;
+}
+
+.class-four h2 {
+  color: greenyellow;
+}
+.class-four p {
+  color: greenyellow;
+}
+
+.class-five h2 {
+  color: chocolate;
+}
+.class-five p {
+  color: chocolate;
+}
