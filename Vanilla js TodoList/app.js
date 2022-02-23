@@ -1,11 +1,11 @@
-let theInput = document.querySelector(".add-task input"),
+const theInput = document.querySelector(".add-task input"),
   AddBtn = document.querySelector(".add-task .plus"),
   tasksContainer = document.querySelector(".tasks-content"),
   tasksCount = document.querySelector(".task-count span"),
   tasksCompleted = document.querySelector(
     ".task-completed span"
-  ),
-  tasks = [],
+  );
+let tasks = [],
   doneTasksArr = [],
   localArr = [],
   iTask = 0;
@@ -52,11 +52,9 @@ function onClickFunc() {
     createTasksContainer();
   }
 }
-
-// create tasks container function
 // FIXME No tasks MSG onload
 
-function createTasksContainer() {
+function removeNoTaskMsg() {
   if (
     document.body.contains(
       document.querySelector(".no-tasks-msg")
@@ -65,6 +63,12 @@ function createTasksContainer() {
     // remove noTasksMsg Div
     document.querySelector(".no-tasks-msg").remove();
   }
+}
+
+// create tasks container function
+
+function createTasksContainer() {
+  removeNoTaskMsg();
 
   if (!executed) {
     // Create shortcuts div
@@ -80,7 +84,7 @@ function createTasksContainer() {
   (theInput.value = ""), theInput.focus();
 }
 
-function create(taskTitle) {
+function create(taskTitle, taskStatus) {
   // create span & deleteBtn
   let mainSpan = document.createElement("span"),
     delBtn = document.createElement("span"),
@@ -95,6 +99,8 @@ function create(taskTitle) {
   (mainSpan.className = "task-box"),
     (delBtn.className = "delete");
 
+  if (taskStatus) mainSpan.className = "task-box done";
+
   //   add delete Btn
   mainSpan.appendChild(delBtn),
     // add the task 'mainSpan' to the container
@@ -108,6 +114,8 @@ function create(taskTitle) {
     if (e.target === delBtn) deleteFunction(delBtn);
     else if (e.target === mainSpan) doneFunction(mainSpan);
   });
+
+  changeTaskColor(mainSpan);
 
   countTasks();
 }
@@ -124,6 +132,7 @@ function sweetAlertFunc(title, text, icon, button) {
 
 // delete function on click delBtn
 // other way docment.addEventListener
+// [x] remove from storage
 function deleteFunction(delBtn) {
   delBtn.parentElement.remove();
 
@@ -136,27 +145,72 @@ function deleteFunction(delBtn) {
     1
   );
 
+  // LocalStorage Manipulation
+
+  console.log(localArr);
+  localArr.forEach((t) => {
+    if (
+      t.title ===
+      delBtn.parentElement.textContent.replace(
+        /delete$/i,
+        ""
+      )
+    )
+      localArr.splice(localArr.indexOf(t), 1);
+  });
+
+  storeTasks(localArr);
+
+  countTasks();
+}
+
+function deleteAll() {
+  localStorage.clear();
+
+  while (tasksContainer.firstChild) {
+    tasksContainer.firstChild.remove();
+  }
+  createNoTasksMSG();
+
+  (tasks = []), (localArr = []);
   countTasks();
 }
 
 // doneFunction on click mainSpan
 function doneFunction(mainSpan) {
+  let titleExtract = mainSpan.textContent.replace(
+    /delete$/i,
+    ""
+  );
+
   mainSpan.classList.toggle("done");
 
-  // [ ] search for task in storage by value which has done class... then edit its status to true
   mainSpan.classList.contains("done")
-    ? doneTasksArr.push(
-        mainSpan.textContent.replace(/delete$/i, "")
-      )
+    ? doneTasksArr.push(titleExtract)
     : doneTasksArr.splice(
-        doneTasksArr.indexOf(
-          mainSpan.textContent.replace(/delete$/i, "")
-        ),
+        doneTasksArr.indexOf(titleExtract),
         1
       );
 
-  // console.log(doneTasks);
-  // change Completed tasks counter
+  // localStorage Manipulation
+  localArr.forEach((t) => {
+    if (t.title === titleExtract) t.status = !t.status;
+  });
+  storeTasks(localArr);
+
+  countTasks();
+}
+
+function finishAll() {
+  Array.from(tasksContainer.children).map((node) => {
+    if (!node.classList.contains("done"))
+      node.classList.add("done");
+  });
+
+  // localStorage Manipulation
+  localArr.forEach((t) => (t.status = true));
+  storeTasks(localArr);
+
   countTasks();
 }
 
@@ -194,24 +248,6 @@ document.addEventListener("click", (e) => {
     finishAll();
 });
 
-function deleteAll() {
-  while (tasksContainer.firstChild) {
-    tasksContainer.firstChild.remove();
-  }
-  createNoTasksMSG();
-
-  tasks = [];
-  countTasks();
-}
-
-function finishAll() {
-  Array.from(tasksContainer.children).map((node, i) => {
-    node.classList.toggle("done");
-  });
-
-  countTasks();
-}
-
 // Function To Create No Tasks Message
 function createNoTasksMSG() {
   // Create Message Span Element
@@ -226,28 +262,26 @@ function createNoTasksMSG() {
   tasksContainer.appendChild(msgSpan);
 }
 
-// Count the completed tasks
+// Count all tasks
 function countTasks() {
   tasksCount.textContent = document.querySelectorAll(
     ".tasks-content .task-box"
   ).length;
 
-  // Count all tasks
+  // Count completed tasks
   tasksCompleted.textContent = document.querySelectorAll(
     ".tasks-content .done"
   ).length;
 }
 
 // [x] add tasks to local storage
-
 function addTasksToLocalStorage(task) {
   let tasksObj = {
-    id: iTask,
+    id: Math.random().toString(36).slice(2, 5),
     title: task,
     status: false,
+    color: "",
   };
-
-  iTask++;
 
   localArr.push(tasksObj);
 
@@ -259,14 +293,62 @@ function storeTasks(tasks) {
 }
 
 // [x] get tasks storage , then put em in page
-// [ ] edit status in the localstorage & keep it
+// [x] edit status in the localstorage & keep it
 window.onload = () => {
   if (localStorage.length != 0) {
     localArr = JSON.parse(localStorage.getItem("tasks"));
 
-    console.log(localArr);
     localArr.forEach((task) => {
-      create(task.title);
+      create(task.title, task.status);
     });
   }
+
+  // only if the container has childern ..'NoMsg' Appears!!
+  if (
+    document.querySelectorAll(".tasks-content .task-box")
+      .length > 0
+  ) {
+    removeNoTaskMsg(), createShortCutsDiv();
+  }
 };
+
+// array of Colors
+const arrOfColors = [
+  "#61C284",
+  "#C2E975",
+  "#e91e63",
+  "#ffc107",
+  "#1F78C1",
+  "#7163B4",
+  "#9D4993",
+  "#8D6D88",
+  "#ff9800",
+  "#e91e63",
+  "#344B47",
+  "#FFA17A",
+  "#00372E",
+];
+
+function changeTaskColor(taskBox) {
+  // [x] set color in the localArr .. storage
+
+  localArr.forEach((t) => {
+    t.color = `${
+      arrOfColors[
+        Math.trunc(Math.random() * arrOfColors.length - 1)
+      ]
+    }`;
+
+    if (
+      taskBox.textContent.replace(/delete$/i, "") ===
+      t.title
+    ) {
+      taskBox.style.color = t.color;
+    }
+  });
+  storeTasks(localArr);
+
+  // [x] get the color from the storage to each one
+}
+
+//  [ ] make the color dont randomly on each load

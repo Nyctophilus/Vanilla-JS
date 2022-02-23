@@ -14,7 +14,12 @@ body {
 
 .todo-container .add-task {
   padding: 15px;
-  background-color: #009688;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 150, 136, 1) 0%,
+    #7163b4 60%,
+    #9d4993 80%
+  );
   position: relative;
 }
 
@@ -39,7 +44,7 @@ body {
   border-radius: 50%;
   line-height: 40px;
   text-align: center;
-  color: #009688;
+  color: #9d4993;
   cursor: pointer;
   font-size: 40px;
 
